@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spieler Übersicht mit Sortierung</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    #sortButtons {
+      margin-bottom: 15px;
+    }
+    #sortButtons button {
+      margin-right: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+    #sortButtons button:hover {
+      background-color: #0056b3;
+    }
+    .player-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .player-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 220px;
+      padding: 15px;
+      text-align: center;
+    }
+    .player-card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+    }
+    .player-name {
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .player-position {
+      font-style: italic;
+      color: #555;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Spieler Übersicht (Muenchen1)</h1>
+
+<div id="sortButtons">
+  <button id="sortPoints">Nach Punkten sortieren ↓</button>
+  <button id="sortRatio">Nach Punkte/Preis sortieren ↓</button>
+</div>
+
+<div id="players" class="player-list"></div>
+
+<script>
+  // Hier deine kopierte JSON-Daten reinschieben
+  const firestoreData = {
+   "players": {
+          "arrayValue": {
+            "values": [
+              {
+                "mapValue": {
+                  "fields": {
+                    "fantasyPoints": {
+                      "doubleValue": 63.5
+                    },
+                    "id": {
+                      "stringValue": "2116254" 
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Momme-Lorenz-Blau.png"
+                    },
+                    "price": {
+                      "integerValue": "20"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "firstName": {
+                      "stringValue": "Momme"
+                    },
+                    "lastName": {
+                      "stringValue": "Lorenz"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "firstName": {
+                      "stringValue": "Tilo"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "79"
+                    },
+                    "lastName": {
+                      "stringValue": "Rietschel"
+                    },
+                    "price": {
+                      "integerValue": "20"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Tilo-Rietschel-Blau.png"
+                    },
+                    "id": {
+                      "stringValue": "2171040"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    },
+                    "firstName": {
+                      "stringValue": "Jonas"
+                    },
+                    "prefix": {
+                      "stringValue": "J."
+                    },
+                    "id": {
+                      "stringValue": "2170786"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 77.5
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "lastName": {
+                      "stringValue": "Sagstetter"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170785"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Jonas-Sagstetter-Blau.png"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "id": {
+                      "stringValue": "2170785"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "57"
+                    },
+                    "prefix": {
+                      "stringValue": "B."
+                    },
+                    "lastName": {
+                      "stringValue": "Sagstetter"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170786"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Benedikt-Sagstetter-Blau.png"
+                    },
+                    "firstName": {
+                      "stringValue": "Benedikt"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "id": {
+                      "stringValue": "2171036"
+                    },
+                    "lastName": {
+                      "stringValue": "Just"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Max-Just-Blau.png"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "19"
+                    },
+                    "firstName": {
+                      "stringValue": "Max"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "fantasyPoints": {
+                      "doubleValue": 24.5
+                    },
+                    "firstName": {
+                      "stringValue": "Philipp Konstantin"
+                    },
+                    "price": {
+                      "integerValue": "35"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Philipp Konstantin-Huster-Blau.png"
+                    },
+                    "lastName": {
+                      "stringValue": "Huster"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "id": {
+                      "stringValue": "2171038"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "firstName": {
+                      "stringValue": "Luis"
+                    },
+                    "price": {
+                      "integerValue": "15"
+                    },
+                    "teamMate": {
+                      "stringValue": "2468799"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "124"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Luis-Kubo-Blau.png"
+                    },
+                    "id": {
+                      "stringValue": "2170797"
+                    },
+                    "lastName": {
+                      "stringValue": "Kubo"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "fantasyPoints": {
+                      "integerValue": "124"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170797"
+                    },
+                    "id": {
+                      "stringValue": "2468799"
+                    },
+                    "lastName": {
+                      "stringValue": "Poniewaz"
+                    },
+                    "firstName": {
+                      "stringValue": "David"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/David-Poniewaz-Blau.png"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    },
+                    "prefix": {
+                      "stringValue": "D."
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Jannik-Kühlborn-Blau.png"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170787"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "price": {
+                      "integerValue": "20"
+                    },
+                    "lastName": {
+                      "stringValue": "Kühlborn"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 26.5
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "id": {
+                      "stringValue": "2468797"
+                    },
+                    "firstName": {
+                      "stringValue": "Jannik"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "id": {
+                      "stringValue": "2170787"
+                    },
+                    "lastName": {
+                      "stringValue": "Stadie-Seeber"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Eric-Stadie-Seeber-Blau.png"
+                    },
+                    "teamMate": {
+                      "stringValue": "2468797"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 41.5
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "firstName": {
+                      "stringValue": "Eric"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "fantasyPoints": {
+                      "doubleValue": 103.5
+                    },
+                    "lastName": {
+                      "stringValue": "Schieder"
+                    },
+                    "firstName": {
+                      "stringValue": "Hanna-Marie"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "id": {
+                      "stringValue": "2116268"
+                    },
+                    "teamMate": {
+                      "stringValue": "2191993"
+                    },
+                    "price": {
+                      "integerValue": "35"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Hanna-Marie-Schieder-Blau.png"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "fantasyPoints": {
+                      "integerValue": "91"
+                    },
+                    "price": {
+                      "integerValue": "40"
+                    },
+                    "firstName": {
+                      "stringValue": "Karla"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "id": {
+                      "stringValue": "2191993"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Karla-Borger-Blau.png"
+                    },
+                    "teamMate": {
+                      "stringValue": "2116268"
+                    },
+                    "lastName": {
+                      "stringValue": "Borger"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "fantasyPoints": {
+                      "integerValue": "66"
+                    },
+                    "id": {
+                      "stringValue": "2170800"
+                    },
+                    "teamMate": {
+                      "stringValue": "2116274"
+                    },
+                    "firstName": {
+                      "stringValue": "Chenoa"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Chenoa-Christ-Blau.png"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "lastName": {
+                      "stringValue": "Christ"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "price": {
+                      "integerValue": "15"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "lastName": {
+                      "stringValue": "Schwarz"
+                    },
+                    "price": {
+                      "integerValue": "15"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170800"
+                    },
+                    "firstName": {
+                      "stringValue": "Tabea"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "75"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "id": {
+                      "stringValue": "2116274"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Tabea-Schwarz-Blau.png"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "id": {
+                      "stringValue": "2170802"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 67.5
+                    },
+                    "teamMate": {
+                      "stringValue": "2170803"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Anna-Behlen-Blau.png"
+                    },
+                    "lastName": {
+                      "stringValue": "Behlen"
+                    },
+                    "firstName": {
+                      "stringValue": "Anna"
+                    },
+                    "price": {
+                      "integerValue": "25"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "firstName": {
+                      "stringValue": "Sarah"
+                    },
+                    "price": {
+                      "integerValue": "25"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Sarah-Schulz-Blau.png"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 61.5
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "lastName": {
+                      "stringValue": "Schulz"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "id": {
+                      "stringValue": "2170803"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "lastName": {
+                      "stringValue": "Barber"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 49.5
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Nele-Barber-Blau.png"
+                    },
+                    "price": {
+                      "integerValue": "20"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "firstName": {
+                      "stringValue": "Nele"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170813"
+                    },
+                    "id": {
+                      "stringValue": "2170812"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "price": {
+                      "integerValue": "30"
+                    },
+                    "firstName": {
+                      "stringValue": "Melanie"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Melanie-Gernert-Blau.png"
+                    },
+                    "id": {
+                      "stringValue": "2170813"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "lastName": {
+                      "stringValue": "Gernert"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170812"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 53.5
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Paula-Schürholz-Blau.png"
+                    },
+                    "teamMate": {
+                      "stringValue": "2171048"
+                    },
+                    "id": {
+                      "stringValue": "2171043"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "firstName": {
+                      "stringValue": "Paula"
+                    },
+                    "lastName": {
+                      "stringValue": "Schürholz"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "113"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "firstName": {
+                      "stringValue": "Mareet"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "id": {
+                      "stringValue": "2171048"
+                    },
+                    "lastName": {
+                      "stringValue": "Maidhof"
+                    },
+                    "teamMate": {
+                      "stringValue": "2171043"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 94.5
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Mareet-Maidhof-Blau.png"
+                    },
+                    "price": {
+                      "integerValue": "10"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Hennes Jorge-Nissen-Blau.png"
+                    },
+                    "lastName": {
+                      "stringValue": "Nissen"
+                    },
+                    "price": {
+                      "integerValue": "20"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "teamMate": {
+                      "stringValue": "2116256"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "firstName": {
+                      "stringValue": "Hennes Jorge"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "38"
+                    },
+                    "id": {
+                      "stringValue": "2116264"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "firstName": {
+                      "stringValue": "Kim"
+                    },
+                    "teamMate": {
+                      "stringValue": "2116264"
+                    },
+                    "lastName": {
+                      "stringValue": "Huber"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "70"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Kim-Huber-Blau.png"
+                    },
+                    "id": {
+                      "stringValue": "2116256"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "price": {
+                      "integerValue": "5"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "firstName": {
+                      "stringValue": "Melanie"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "id": {
+                      "stringValue": "2170804"
+                    },
+                    "lastName": {
+                      "stringValue": "Paul"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "97"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170807"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Melanie-Paul-Blau.png"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "firstName": {
+                      "stringValue": "Lea Sophie"
+                    },
+                    "lastName": {
+                      "stringValue": "Kunst"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Lea Sophie-Kunst-Blau.png"
+                    },
+                    "teamMate": {
+                      "stringValue": "2170804"
+                    },
+                    "price": {
+                      "integerValue": "30"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "id": {
+                      "stringValue": "2170807"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 67.5
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "id": {
+                      "stringValue": "2492370"
+                    },
+                    "teamMate": {
+                      "stringValue": "2492371"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "firstName": {
+                      "stringValue": "Astrid"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Astrid-Munkwitz-Blau.png"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "lastName": {
+                      "stringValue": "Munkwitz"
+                    },
+                    "price": {
+                      "integerValue": "5"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "13"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "lastName": {
+                      "stringValue": "Standhardinger"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "id": {
+                      "stringValue": "2492371"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Kristin-Standhardinger-Blau.png"
+                    },
+                    "price": {
+                      "integerValue": "5"
+                    },
+                    "firstName": {
+                      "stringValue": "Kristin"
+                    },
+                    "teamMate": {
+                      "stringValue": "2492370"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 20.5
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "lastName": {
+                      "stringValue": "Grössig"
+                    },
+                    "firstName": {
+                      "stringValue": "Laurenc"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "68"
+                    },
+                    "teamMate": {
+                      "stringValue": "2492369"
+                    },
+                    "id": {
+                      "stringValue": "2492368"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "price": {
+                      "integerValue": "20"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Laurenc-Grössig-Blau.png"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "firstName": {
+                      "stringValue": "Mathias"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Mathias-Seiser-Blau.png"
+                    },
+                    "teamMate": {
+                      "stringValue": "2492368"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "price": {
+                      "integerValue": "20"
+                    },
+                    "lastName": {
+                      "stringValue": "Seiser"
+                    },
+                    "id": {
+                      "stringValue": "2492369"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 72.5
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 29.5
+                    },
+                    "firstName": {
+                      "stringValue": "Giulia"
+                    },
+                    "price": {
+                      "integerValue": "5"
+                    },
+                    "id": {
+                      "stringValue": "2116273"
+                    },
+                    "lastName": {
+                      "stringValue": "Deißenberger"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Giulia-Deißenberger-Blau.png"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "teamMate": {
+                      "stringValue": "2171049"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "price": {
+                      "integerValue": "5"
+                    },
+                    "fantasyPoints": {
+                      "integerValue": "27"
+                    },
+                    "teamMate": {
+                      "stringValue": "2116273"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "firstName": {
+                      "stringValue": "Josefine"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Josefine-Schäkel-Blau.png"
+                    },
+                    "id": {
+                      "stringValue": "2171049"
+                    },
+                    "lastName": {
+                      "stringValue": "Schäkel"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Valentin-Schneckenburger-Blau.png"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "teamMate": {
+                      "stringValue": "2479114"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "price": {
+                      "integerValue": "5"
+                    },
+                    "id": {
+                      "stringValue": "2191999"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 96.5
+                    },
+                    "lastName": {
+                      "stringValue": "Schneckenburger"
+                    },
+                    "firstName": {
+                      "stringValue": "Valentin"
+                    }
+                  }
+                }
+              },
+              {
+                "mapValue": {
+                  "fields": {
+                    "price": {
+                      "integerValue": "5"
+                    },
+                    "id": {
+                      "stringValue": "2479114"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "firstName": {
+                      "stringValue": "Yannick"
+                    },
+                    "imagePath": {
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Yannick-Bibelriether-Blau.png"
+                    },
+                    "lastName": {
+                      "stringValue": "Bibelriether"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "teamMate": {
+                      "stringValue": "2191999"
+                    },
+                    "fantasyPoints": {
+                      "doubleValue": 126.5
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+    };
+  function parsePlayer(player) {
+    const f = player.mapValue.fields;
+    return {
+      id: f.id.stringValue,
+      firstName: f.firstName.stringValue,
+      lastName: f.lastName.stringValue,
+      position: f.position.stringValue,
+      fantasyPoints: f.fantasyPoints.doubleValue ?? parseFloat(f.fantasyPoints.integerValue) ?? 0,
+      price: parseInt(f.price.integerValue) || 0,
+      gender: f.gender.stringValue,
+      imagePath: f.imagePath.stringValue,
+      pointsPerPrice: 0 // Berechnen wir gleich
+    };
+  }
+
+  // Alle Spieler parsen
+  let players = firestoreData.players.arrayValue.values.map(parsePlayer);
+
+  // Punkte/Preis berechnen (Vermeidung Division durch 0)
+  players.forEach(p => {
+    p.pointsPerPrice = p.price > 0 ? p.fantasyPoints / p.price : 0;
+  });
+
+  // Spieler rendern
+  function renderPlayers(playersArray) {
+    const container = document.getElementById("players");
+    container.innerHTML = "";
+
+    playersArray.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "player-card";
+      card.innerHTML = `
+        <img src="${p.imagePath}" alt="${p.firstName} ${p.lastName}" />
+        <div class="player-name">${p.firstName} ${p.lastName}</div>
+        <div class="player-position">${p.position}</div>
+        <div>Fantasy Punkte: ${p.fantasyPoints.toFixed(1)}</div>
+        <div>Preis: ${p.price} Coins</div>
+        <div>Geschlecht: ${p.gender}</div>
+        <div><strong>Punkte/Preis:</strong> ${p.pointsPerPrice.toFixed(2)}</div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  // Sortierfunktionen
+  function sortByPoints() {
+    players.sort((a, b) => b.fantasyPoints - a.fantasyPoints);
+    renderPlayers(players);
+  }
+
+  function sortByPointsPerPrice() {
+    players.sort((a, b) => b.pointsPerPrice - a.pointsPerPrice);
+    renderPlayers(players);
+  }
+
+  // Buttons Eventlistener
+  document.getElementById("sortPoints").addEventListener("click", sortByPoints);
+  document.getElementById("sortRatio").addEventListener("click", sortByPointsPerPrice);
+
+  // Initiales Rendering
+  renderPlayers(players);
+</script>
+
+</body>
+</html>

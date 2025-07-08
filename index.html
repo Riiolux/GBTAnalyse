@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GBT Fantasy - Startseite</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .section h2 {
+      margin-top: 0;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin: 10px 0;
+    }
+
+    a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🏐 GBT Fantasy Startseite</h1>
+
+  <div class="container">
+    <div class="section">
+      <h2>Turniere</h2>
+      <ul id="tournamentList">
+        <!-- Dynamisch gefüllt -->
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Analyse</h2>
+      <a href="analyse.html">📊 Zur Analyse-Seite</a>
+    </div>
+  </div>
+
+  <script>
+    // Alle bisherigen und zukünftigen Turnierseiten hier eintragen
+    const tournaments = [
+      "Duesseldorf1",
+      "Duesseldorf2",
+      "Hamburg",
+      "Bremen",
+      "Muenchen1",
+      // später einfach neue hier hinzufügen: z.B. "Kiel", "Berlin", ...
+    ];
+
+    const list = document.getElementById("tournamentList");
+
+    tournaments.forEach(name => {
+      const li = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = `${name}.html`;
+      link.textContent = name;
+      li.appendChild(link);
+      list.appendChild(li);
+    });
+  </script>
+
+</body>
+</html>

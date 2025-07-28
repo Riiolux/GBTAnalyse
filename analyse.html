@@ -1,73 +1,343 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Fantasy Analyse</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; }
-    h1 { text-align: center; }
-    input[type="text"] { width: 100%; padding: 10px; font-size: 16px; margin-top: 10px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
-    th { background: #eee; cursor: pointer; }
-    img { max-width: 50px; vertical-align: middle; margin-right: 8px; }
-    canvas { max-width: 300px; max-height: 200px; }
-    .compare-section { margin-top: 40px; background: #fff; padding: 20px; border: 1px solid #ccc; }
-    .compare-graphs { display: flex; gap: 20px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Tabs */
+    .tab-buttons {
+      display: inline-flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 15px;
+      max-width: 300px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #filterContainer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    #resetFilters {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+
+    }
+
+    #resetFilters:hover {
+      background-color: #0056b3;
+    }
+
+    .tab-buttons button {
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      background: #ddd;
+      font-weight: 600;
+      transition: background 0.3s ease;
+      min-width: 100px;
+    }
+
+    .tab-buttons button.active {
+      background: #007bff;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Übersicht Tab */
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 0;
+    }
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eee;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    img {
+      max-width: 50px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    canvas {
+      max-width: 250px;
+      max-height: 200px;
+    }
+
+    /* Vergleich Tab */
+    #compareA,
+    #compareB {
+      width: 48%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      display: inline-block;
+    }
+
+    .compare-section {
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      padding-bottom: 40px;
+
+    }
+
+    .compare-section h2 {
+      margin-top: 0;
+    }
+
+    .compare-section table {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .compare-section th,
+    .compare-section td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .compare-graphs {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .compare-graphs canvas {
+      max-width: 350px;
+      max-height: 200px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .compare-cards {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .compare-player {
+      background: #fff;
+      padding: 16px;
+      border: 1px solid #ccc;
+      flex: 1 1 48%;
+      box-sizing: border-box;
+    }
+
+    .compare-player h3 {
+      margin-top: 0;
+    }
+
+    .compare-player canvas {
+      width: 100%;
+      height: 220px;
+      max-width: 100%;
+    }
+
+    .autocomplete-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      background: #fff;
+      position: absolute;
+      width: 48%;
+      z-index: 10;
+      display: none;
+    }
+
+    .autocomplete-list li {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .autocomplete-list li:hover {
+      background: #eee;
+    }
+
+    th {
+      position: relative;
+      padding-right: 16px;
+    }
+
+    .sort-icon {
+      font-size: 12px;
+      margin-left: 4px;
+      color: #999;
+    }
+
+    select {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
+
 <body>
   <h1>Fantasy Analyse - Alle Turniere</h1>
 
-  <input type="text" id="searchInput" placeholder="🔍 Nach Spieler in Tabelle suchen..." />
-
-  <div style="display: flex; gap: 20px; margin-top: 20px;">
-    <input type="text" id="compareA" placeholder="Spieler A vergleichen..." />
-    <input type="text" id="compareB" placeholder="Spieler B vergleichen..." />
-  </div>
-
-  <div class="compare-section" id="compareSection" style="display:none;">
-    <h2>🔍 Spieler Vergleich</h2>
-    <table>
-      <thead>
-        <tr><th>Eigenschaft</th><th>Spieler A</th><th>Spieler B</th></tr>
-      </thead>
-      <tbody id="compareTable"></tbody>
-    </table>
-    <div class="compare-graphs">
-      <canvas id="compareChartA"></canvas>
-      <canvas id="compareChartB"></canvas>
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+    <a href="index.html" title="Zurück zur Startseite"
+      style="font-size: 20px; text-decoration: none; color: #333; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">←</a>
+    <div class="tab-buttons" style="display: inline-flex; gap: 10px;">
+      <button id="tabOverviewBtn" class="active" onclick="switchTab('overview')">Übersicht</button>
+      <button id="tabCompareBtn" onclick="switchTab('compare')">Vergleich</button>
     </div>
   </div>
 
-  <p>Gesamtanzahl Spieler: <span id="totalPlayers">0</span></p>
+  <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+    <select id="filterGender">
+      <option value="">Geschlecht (Alle)</option>
+      <option value="M">M</option>
+      <option value="W">W</option>
+    </select>
 
-  <table id="playersTable">
-    <thead>
-      <tr>
-        <th onclick="sortTable(0)">Spieler</th>
-        <th onclick="sortTable(1)">Position</th>
-        <th onclick="sortTable(2)">Gesamtpunkte</th>
-        <th onclick="sortTable(3)">Turniere</th>
-        <th onclick="sortTable(4)">Punkte / Turnier</th>
-        <th onclick="sortTable(5)">Preise pro Turnier</th>
-        <th onclick="sortTable(6)">Punkte / Coin</th>
-        <th>Graf</th>
-      </tr>
-    </thead>
-    <tbody id="playerRows"></tbody>
-  </table>
+    <select id="filterPosition">
+      <option value="">Position (Alle)</option>
+      <option value="Block">Block</option>
+      <option value="Abwehr">Abwehr</option>
+      <option value="Hybrid">Hybrid</option>
+    </select>
+    <button id="resetFilters">Filter zurücksetzen</button>
+  </div>
 
-  <script>
-    // --- DATEN EINFÜGEN ---
-    const turniere = [];
+  <div id="overviewTab" class="tab-content active">
+    <input type="text" id="searchInput" placeholder="Nach Spieler in Tabelle suchen..." autocomplete="off" />
+    <ul id="suggestionsOverview" class="autocomplete-list"></ul>
+    <p>Gesamtanzahl Spieler: <span id="totalPlayers">0</span></p>
 
+    <table id="playersTable">
+      <thead>
+        <tr>
+          <th onclick="sortTable(0, this)">Spieler <span class="sort-icon">⇅</span></th>
+          <th onclick="sortTable(1, this)">Position <span class="sort-icon">⇅</span></th>
+          <th onclick="sortTable(2, this)">Gesamtpunkte <span class="sort-icon">⇅</span></th>
+          <th onclick="sortTable(3, this)">Turniere <span class="sort-icon">⇅</span></th>
+          <th onclick="sortTable(4, this)">Punkte / Turnier <span class="sort-icon">⇅</span></th>
+          <th onclick="sortTable(5, this)">Preise pro Turnier <span class="sort-icon">⇅</span></th>
+          <th onclick="sortTable(6, this)">Punkte / Coin <span class="sort-icon">⇅</span></th>
+          <th>Graph</th>
+        </tr>
+      </thead>
+      <tbody id="playerRows"></tbody>
+    </table>
+  </div>
 
-// Düsseldorf1
+  <!-- Vergleich Tab -->
+  <div id="compareTab" class="tab-content" style="display:none;">
+    <input type="text" id="compareA" placeholder="Spieler A vergleichen..." autocomplete="off" />
+    <ul id="suggestionsA" class="autocomplete-list"></ul>
 
-    turniere.push({    "players": {
+    <input type="text" id="compareB" placeholder="Spieler B vergleichen..." autocomplete="off" />
+    <ul id="suggestionsB" class="autocomplete-list"></ul>
+
+    <div class="compare-section" id="compareSection" style="display:none;">
+      <h2>🔍 Spieler Vergleich</h2>
+      <div class="compare-cards">
+        <div class="compare-player" id="playerCardA">
+          <!-- Spieler A Infos -->
+        </div>
+        <div class="compare-player" id="playerCardB">
+          <!-- Spieler B Infos -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function switchTab(tab) {
+        const overviewTab = document.getElementById("overviewTab");
+        const compareTab = document.getElementById("compareTab");
+        const btnOverview = document.getElementById("tabOverviewBtn");
+        const btnCompare = document.getElementById("tabCompareBtn");
+
+        if (tab === "overview") {
+          overviewTab.style.display = "block";
+          compareTab.style.display = "none";
+
+          btnOverview.classList.add("active");
+          btnCompare.classList.remove("active");
+        } else if (tab === "compare") {
+          overviewTab.style.display = "none";
+          compareTab.style.display = "block";
+
+          btnCompare.classList.add("active");
+          btnOverview.classList.remove("active");
+        }
+      }
+
+      const turniere = []
+
+      // Düsseldorf1
+      turniere.push({
+        "players": {
           "arrayValue": {
             "values": [
               {
@@ -85,8 +355,14 @@
                     "id": {
                       "stringValue": "2170783"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "firstName": {
                       "stringValue": "Paul"
+                    },
+                    "gender": {
+                      "stringValue": "M"
                     },
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FPaul-Henning-Bunt.png?alt=media&token=5e9af87a-0408-44ff-9156-60baa77582c4"
@@ -94,6 +370,7 @@
                     "bitID": {
                       "integerValue": "1"
                     }
+
                   }
                 }
               },
@@ -112,8 +389,14 @@
                     "bitID": {
                       "integerValue": "2"
                     },
+                    "gender": {
+                      "stringValue": "M"
+                    },
                     "id": {
                       "stringValue": "2171039"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "price": {
                       "integerValue": "30"
@@ -142,8 +425,14 @@
                     "bitID": {
                       "integerValue": "4"
                     },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "price": {
                       "integerValue": "40"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "lastName": {
                       "stringValue": "Ittlinger"
@@ -169,8 +458,14 @@
                     "firstName": {
                       "stringValue": "Emilie"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "imagePath": {
-                      "stringValue": ""
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Emilie-Olimstad-Blau.png"
                     },
                     "price": {
                       "integerValue": "35"
@@ -193,6 +488,12 @@
                     "firstName": {
                       "stringValue": "Lukas"
                     },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
                     "lastName": {
                       "stringValue": "Pfretzschner"
                     },
@@ -202,6 +503,8 @@
                     "bitID": {
                       "integerValue": "16"
                     }
+
+
                   }
                 }
               },
@@ -219,6 +522,12 @@
                     },
                     "id": {
                       "stringValue": "2170782"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "gender": {
+                      "stringValue": "M"
                     },
                     "price": {
                       "integerValue": "40"
@@ -250,6 +559,12 @@
                     "firstName": {
                       "stringValue": "Lea"
                     },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FLea-Kunst-Bunt.png?alt=media&token=cc5253ed-1d9a-4790-abac-332a24c7052b"
                     },
@@ -273,6 +588,12 @@
                     },
                     "firstName": {
                       "stringValue": "Melanie"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
                     },
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FMelanie-Paul-Bunt.png?alt=media&token=ddeac7ce-2938-4fe2-8f43-a803f0116a88"
@@ -298,11 +619,17 @@
                     "firstName": {
                       "stringValue": "Paula"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "lastName": {
                       "stringValue": "Schürholz"
                     },
                     "id": {
                       "stringValue": "2171043"
+                    },
+                    "gender": {
+                      "stringValue": "W"
                     },
                     "bitID": {
                       "integerValue": "256"
@@ -325,6 +652,9 @@
                     "fantasyPoints": {
                       "doubleValue": 104.8523417927467
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "lastName": {
                       "stringValue": "Uhl"
                     },
@@ -333,6 +663,9 @@
                     },
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FJanne-Uhl-Bunt.png?alt=media&token=30f89c11-f822-4095-befc-12285970c87a"
+                    },
+                    "gender": {
+                      "stringValue": "W"
                     },
                     "firstName": {
                       "stringValue": "Janne"
@@ -352,11 +685,17 @@
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FDaniel-Kirchner-Bunt.png?alt=media&token=07a031bb-2900-42d3-9715-b020c1ce32e9"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "lastName": {
                       "stringValue": "Kirchner"
                     },
                     "firstName": {
                       "stringValue": "Daniel"
+                    },
+                    "gender": {
+                      "stringValue": "M"
                     },
                     "id": {
                       "stringValue": "2170793"
@@ -382,8 +721,14 @@
                     "id": {
                       "stringValue": "2170787"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "lastName": {
                       "stringValue": "Stadie-Seeber"
+                    },
+                    "gender": {
+                      "stringValue": "M"
                     },
                     "bitID": {
                       "integerValue": "2048"
@@ -412,6 +757,12 @@
                     "fantasyPoints": {
                       "doubleValue": 53.272723655452978
                     },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "firstName": {
                       "stringValue": "Anna"
                     },
@@ -435,6 +786,12 @@
                     },
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FChenoa_Christ_Bunt.png?alt=media&token=e79127eb-1dc4-45f7-a6c8-f416cfba91ab"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "id": {
                       "stringValue": "2170800"
@@ -469,6 +826,12 @@
                     "id": {
                       "stringValue": "2468797"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
                     "firstName": {
                       "stringValue": "Jannik"
                     }
@@ -489,6 +852,12 @@
                     },
                     "firstName": {
                       "stringValue": "Simon"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "bitID": {
                       "integerValue": "32768"
@@ -520,6 +889,12 @@
                     "id": {
                       "stringValue": "2170812"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "lastName": {
                       "stringValue": "Barber"
                     },
@@ -547,6 +922,12 @@
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FMelanie-Gernert-Bunt.png?alt=media&token=8c755cfc-f42d-406e-bb32-b23791ab778f"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "lastName": {
                       "stringValue": "Gernert"
                     },
@@ -571,6 +952,12 @@
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FDavid-Poniewaz-Bunt.png?alt=media&token=8baed274-73fc-43ae-80f4-81d15786315a"
                     },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "price": {
                       "integerValue": "25"
                     },
@@ -588,6 +975,12 @@
                   "fields": {
                     "firstName": {
                       "stringValue": "Bennet"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "id": {
                       "stringValue": "2170784"
@@ -618,6 +1011,12 @@
                     },
                     "lastName": {
                       "stringValue": "Ferger"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "firstName": {
                       "stringValue": "Sandra"
@@ -650,10 +1049,16 @@
                       "doubleValue": 13.14285314765139
                     },
                     "imagePath": {
-                      "stringValue": ""
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Sarah-Schneider-Blau.png"
+                    },
+                    "gender": {
+                      "stringValue": "W"
                     },
                     "id": {
                       "stringValue": "2171384"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
                     },
                     "lastName": {
                       "stringValue": "Schneider"
@@ -682,8 +1087,14 @@
                     "id": {
                       "stringValue": "2170797"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "fantasyPoints": {
                       "doubleValue": 26.259221295988723
+                    },
+                    "gender": {
+                      "stringValue": "M"
                     },
                     "price": {
                       "integerValue": "15"
@@ -709,8 +1120,14 @@
                     "fantasyPoints": {
                       "doubleValue": 33.999961146187474
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "lastName": {
                       "stringValue": "M. Harms"
+                    },
+                    "gender": {
+                      "stringValue": "M"
                     },
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FManuel-Harms-Bunt.png?alt=media&token=d22cad48-e210-422d-a897-00bd11623c95"
@@ -730,11 +1147,17 @@
                     "bitID": {
                       "integerValue": "16777216"
                     },
+                    "gender": {
+                      "stringValue": "M"
+                    },
                     "id": {
                       "stringValue": "2116263"
                     },
                     "lastName": {
                       "stringValue": "Held"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "imagePath": {
                       "stringValue": "https://firebasestorage.googleapis.com/v0/b/beach-pro-tour-fantasy.appspot.com/o/gbt%2Fplayers%2FNiklas-Held-Bunt.png?alt=media&token=33e42b2f-3e5e-4e86-aa6f-15b46ffffee9"
@@ -756,6 +1179,12 @@
                     },
                     "price": {
                       "integerValue": "15"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "bitID": {
                       "integerValue": "33554432"
@@ -784,9 +1213,13 @@
                     "lastName": {
                       "stringValue": "Rosko"
                     },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "fantasyPoints": {
                       "doubleValue": 24.289436012332583
                     },
+
                     "price": {
                       "integerValue": "5"
                     },
@@ -794,7 +1227,7 @@
                       "integerValue": "67108864"
                     },
                     "imagePath": {
-                      "stringValue": ""
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Maja-Rosko-Blau.png"
                     }
                   }
                 }
@@ -810,6 +1243,9 @@
                     },
                     "price": {
                       "integerValue": "5"
+                    },
+                    "gender": {
+                      "stringValue": "W"
                     },
                     "id": {
                       "stringValue": "2116271"
@@ -830,7 +1266,7 @@
                 "mapValue": {
                   "fields": {
                     "imagePath": {
-                      "stringValue": ""
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Lisa-Sophie-Kotzan-Blau.png"
                     },
                     "id": {
                       "stringValue": "2116270"
@@ -840,6 +1276,12 @@
                     },
                     "lastName": {
                       "stringValue": "Kotzan"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "gender": {
+                      "stringValue": "W"
                     },
                     "price": {
                       "integerValue": "10"
@@ -868,6 +1310,12 @@
                     "firstName": {
                       "stringValue": "Tabea"
                     },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "bitID": {
                       "integerValue": "536870912"
                     },
@@ -895,8 +1343,14 @@
                     "lastName": {
                       "stringValue": "Fröbel"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "imagePath": {
-                      "stringValue": ""
+                      "stringValue": "https://app.germanbeachtour.de/players/img/Tristan-Fr%C3%B6bel-Blau.png"
+                    },
+                    "gender": {
+                      "stringValue": "M"
                     },
                     "id": {
                       "stringValue": "2171041"
@@ -915,6 +1369,12 @@
                     },
                     "lastName": {
                       "stringValue": "Wüst"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "id": {
                       "stringValue": "2170908"
@@ -937,12 +1397,11 @@
             ]
           }
         }
-  });
+      });
 
-
-   //Düsseldorf2 
-
-    turniere.push({    "players": {
+      //Düsseldorf2 
+      turniere.push({
+        "players": {
           "arrayValue": {
             "values": [
               {
@@ -965,6 +1424,9 @@
                     },
                     "bitID": {
                       "integerValue": "1"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "firstName": {
                       "stringValue": "Bennet"
@@ -1005,6 +1467,9 @@
                     "bitID": {
                       "integerValue": "2"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "lastName": {
                       "stringValue": "Stadie-Seeber"
                     },
@@ -1037,6 +1502,9 @@
                     },
                     "lastName": {
                       "stringValue": "Reinhardt"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "price": {
                       "integerValue": "20"
@@ -1071,6 +1539,9 @@
                     "fantasyPoints": {
                       "integerValue": "26"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "id": {
                       "stringValue": "2170793"
                     },
@@ -1103,6 +1574,9 @@
                     },
                     "price": {
                       "integerValue": "25"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "bitID": {
                       "integerValue": "16"
@@ -1140,6 +1614,9 @@
                     "gender": {
                       "stringValue": "M"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "price": {
                       "integerValue": "50"
                     },
@@ -1169,6 +1646,9 @@
                     },
                     "teamMate": {
                       "stringValue": "2206436"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "fantasyPoints": {
                       "doubleValue": 89.5
@@ -1202,6 +1682,9 @@
                     },
                     "bitID": {
                       "integerValue": "128"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "gender": {
                       "stringValue": "M"
@@ -1239,6 +1722,9 @@
                     "bitID": {
                       "integerValue": "256"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "firstName": {
                       "stringValue": "Simon"
                     },
@@ -1272,6 +1758,9 @@
                     "teamMate": {
                       "stringValue": "2170784"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "prefix": {
                       "stringValue": "D."
                     },
@@ -1304,6 +1793,9 @@
                   "fields": {
                     "lastName": {
                       "stringValue": "Fokerots"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "price": {
                       "integerValue": "40"
@@ -1341,6 +1833,9 @@
                     "fantasyPoints": {
                       "integerValue": "67"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "bitID": {
                       "integerValue": "2048"
                     },
@@ -1373,6 +1868,9 @@
                     },
                     "imagePath": {
                       "stringValue": "https://app.germanbeachtour.de/players/img/scale/Hanna-Marie-Schieder-Blau.png"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "id": {
                       "stringValue": "2116268"
@@ -1416,6 +1914,9 @@
                     "gender": {
                       "stringValue": "W"
                     },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
                     "fantasyPoints": {
                       "doubleValue": 57.5
                     },
@@ -1455,6 +1956,9 @@
                     "gender": {
                       "stringValue": "W"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "id": {
                       "stringValue": "2170802"
                     },
@@ -1488,6 +1992,9 @@
                     "gender": {
                       "stringValue": "W"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "price": {
                       "integerValue": "25"
                     },
@@ -1517,6 +2024,9 @@
                     },
                     "bitID": {
                       "integerValue": "65536"
+                    },
+                    "position": {
+                      "stringValue": "Hybrid"
                     },
                     "avg": {
                       "integerValue": "9"
@@ -1554,6 +2064,9 @@
                     "gender": {
                       "stringValue": "W"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "teamMate": {
                       "stringValue": "2170813"
                     },
@@ -1583,6 +2096,9 @@
                     },
                     "lastName": {
                       "stringValue": "Gernert"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "bitID": {
                       "integerValue": "262144"
@@ -1629,6 +2145,9 @@
                     "fantasyPoints": {
                       "doubleValue": 62.5
                     },
+                    "position": {
+                      "stringValue": "Hybrid"
+                    },
                     "imagePath": {
                       "stringValue": "https://app.germanbeachtour.de/players/img/scale/Sarah-Schneider-Blau.png"
                     },
@@ -1661,6 +2180,9 @@
                     },
                     "firstName": {
                       "stringValue": "Sandra"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "avg": {
                       "doubleValue": 14.9
@@ -1698,6 +2220,9 @@
                     "gender": {
                       "stringValue": "W"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "lastName": {
                       "stringValue": "Borger"
                     },
@@ -1731,6 +2256,9 @@
                     "gender": {
                       "stringValue": "W"
                     },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "teamMate": {
                       "stringValue": "2206439"
                     },
@@ -1760,6 +2288,9 @@
                     },
                     "teamMate": {
                       "stringValue": "2206438"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "firstName": {
                       "stringValue": "Cinja"
@@ -1794,6 +2325,12 @@
                     "bitID": {
                       "integerValue": "16777216"
                     },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "imagePath": {
                       "stringValue": "https://app.germanbeachtour.de/players/img/scale/Niklas-Held-Blau.png"
                     },
@@ -1824,6 +2361,12 @@
                     "imagePath": {
                       "stringValue": "https://app.germanbeachtour.de/players/img/scale/Hennes Jorge-Nissen-Blau.png"
                     },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
+                    "gender": {
+                      "stringValue": "M"
+                    },
                     "firstName": {
                       "stringValue": "Hennes Jorge"
                     },
@@ -1851,8 +2394,14 @@
                     "fantasyPoints": {
                       "integerValue": "-2"
                     },
+                    "gender": {
+                      "stringValue": "M"
+                    },
                     "lastName": {
                       "stringValue": "Kaminski"
+                    },
+                    "position": {
+                      "stringValue": "Block"
                     },
                     "bitID": {
                       "integerValue": "67108864"
@@ -1890,6 +2439,12 @@
                     "lastName": {
                       "stringValue": "Kubo"
                     },
+                    "gender": {
+                      "stringValue": "M"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
+                    },
                     "firstName": {
                       "stringValue": "Luis"
                     },
@@ -1913,6 +2468,12 @@
                     },
                     "fantasyPoints": {
                       "integerValue": "16"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
+                    "gender": {
+                      "stringValue": "W"
                     },
                     "id": {
                       "stringValue": "2116275"
@@ -1944,6 +2505,12 @@
                     "lastName": {
                       "stringValue": "Christ"
                     },
+                    "gender": {
+                      "stringValue": "W"
+                    },
+                    "position": {
+                      "stringValue": "Block"
+                    },
                     "teamMate": {
                       "stringValue": "2191798"
                     },
@@ -1971,11 +2538,17 @@
                     "teamMate": {
                       "stringValue": "2116275"
                     },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "lastName": {
                       "stringValue": "Klinke"
                     },
                     "id": {
                       "stringValue": "2170805"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "imagePath": {
                       "stringValue": "https://app.germanbeachtour.de/players/img/scale/Leonie-Klinke-Blau.png"
@@ -2004,11 +2577,17 @@
                     "teamMate": {
                       "stringValue": "2170800"
                     },
+                    "gender": {
+                      "stringValue": "W"
+                    },
                     "price": {
                       "integerValue": "5"
                     },
                     "imagePath": {
                       "stringValue": "https://app.germanbeachtour.de/players/img/scale/Anna-Chiara-Reformat-Blau.png"
+                    },
+                    "position": {
+                      "stringValue": "Abwehr"
                     },
                     "bitID": {
                       "integerValue": "-2147483648"
@@ -2027,10 +2606,9 @@
         }
       });
 
-
-
-    // Hamburg
-    turniere.push({ "players": {
+      // Hamburg
+      turniere.push({
+        "players": {
           "arrayValue": {
             "values": [
               {
@@ -3107,8 +3685,8 @@
       });
 
       //Bremen
-
-        turniere.push({ "players": {
+      turniere.push({
+        "players": {
           "arrayValue": {
             "values": [
               {
@@ -4272,11 +4850,11 @@
             ]
           }
         }
-    }   );
+      });
 
-
-    // Muenchen1
-    turniere.push({  "players": {
+      // Muenchen1
+      turniere.push({
+        "players": {
           "arrayValue": {
             "values": [
               {
@@ -4286,7 +4864,7 @@
                       "doubleValue": 63.5
                     },
                     "id": {
-                      "stringValue": "2116254" 
+                      "stringValue": "2116254"
                     },
                     "position": {
                       "stringValue": "Block"
@@ -5332,12 +5910,11 @@
             ]
           }
         }
-    });
+      });
 
-   
       // München 2
-
-      turniere.push({"players": {
+      turniere.push({
+        "players": {
           "arrayValue": {
             "values": [
               {
@@ -6410,204 +6987,375 @@
               }
             ]
           }
-        },})
-  
+        },
+      })
 
-    
-
-   
-
-  
       const allPlayers = {};
-    const turnierNamen = []; // z.B. ['Hamburg', 'Muenchen1', ...]
+      const turnierNamen = ['Düsseldorf 1 ', 'Düsseldorf 2 ', 'Hamburg ', 'Bremen ', 'München 1 ', 'München 2 '];
 
+      let compareChartAInstance = null;
+      let compareChartBInstance = null;
 
-    let compareChartAInstance = null;
-let compareChartBInstance = null;
-  
+      function getValue(val) {
+        if (val?.stringValue !== undefined) return val.stringValue;
+        if (val?.integerValue !== undefined) return parseInt(val.integerValue);
+        if (val?.doubleValue !== undefined) return parseFloat(val.doubleValue);
+        return null;
+      }
 
-    function getValue(val) {
-      if (val?.stringValue !== undefined) return val.stringValue;
-      if (val?.integerValue !== undefined) return parseInt(val.integerValue);
-      if (val?.doubleValue !== undefined) return parseFloat(val.doubleValue);
-      return null;
-    }
+      function extractAllPlayers() {
+        turniere.forEach((t, index) => {
+          const players = t.players?.arrayValue?.values || [];
 
-    function extractAllPlayers() {
-      turniere.forEach((t, index) => {
-        const turnierName = t.name || `Turnier ${index + 1}`;
-        turnierNamen.push(turnierName);
-        const players = t.players?.arrayValue?.values || [];
+          for (const p of players) {
+            if (!p?.mapValue?.fields) continue;
+            const f = p.mapValue.fields;
 
-        for (const p of players) {
-          if (!p?.mapValue?.fields) continue;
-          const f = p.mapValue.fields;
-          const id = getValue(f.id);
-          const name = `${getValue(f.firstName) || ""} ${getValue(f.lastName) || ""}`.trim();
-          const position = getValue(f.position) || "-";
-          const image = getValue(f.imagePath) || "";
-          const price = getValue(f.price) || 0;
-          const points = getValue(f.fantasyPoints) || 0;
-          if (!id) continue;
+            const id = getValue(f.id);
+            const name = `${getValue(f.firstName) || ""} ${getValue(f.lastName) || ""}`.trim();
+            const position = getValue(f.position) || "-";
+            const gender = getValue(f.gender) || "";
+            const image = getValue(f.imagePath) || "";
+            const price = getValue(f.price) || 0;
+            const points = getValue(f.fantasyPoints) || 0;
 
-          if (!allPlayers[id]) {
-            allPlayers[id] = {
-              id, name, position, image,
-              totalPoints: 0, totalPrice: 0,
-              appearances: 0, prices: [],
-              pointsHistory: Array(turniere.length).fill(null)
-            };
-          }
+            if (!id) continue;
 
-          allPlayers[id].totalPoints += points;
-          allPlayers[id].totalPrice += price;
-          allPlayers[id].appearances += 1;
-          allPlayers[id].prices.push(price);
-          allPlayers[id].pointsHistory[index] = points;
-        }
-      });
-    }
+            if (!allPlayers[id]) {
+              allPlayers[id] = {
+                id,
+                name,
+                position,
+                gender,
+                image,
+                totalPoints: 0,
+                totalPrice: 0,
+                appearances: 0,
+                prices: [],
+                pointsHistory: Array(turniere.length).fill(null)
+              };
+            }
 
-    function renderTable(filter = "") {
-      const tbody = document.getElementById("playerRows");
-      tbody.innerHTML = "";
-
-      const filtered = Object.values(allPlayers).filter(p =>
-        p.name.toLowerCase().includes(filter.toLowerCase())
-      );
-
-      document.getElementById('totalPlayers').textContent = filtered.length;
-
-      filtered.forEach((player, i) => {
-        const avgPoints = (player.totalPoints / player.appearances).toFixed(1);
-        const ppc = (player.totalPrice > 0 ? (player.totalPoints / player.totalPrice).toFixed(2) : "0.00");
-        const pricesStr = player.prices.join(", ");
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td><img src="${player.image}" alt="" /> ${player.name}</td>
-          <td>${player.position}</td>
-          <td>${player.totalPoints.toFixed(1)}</td>
-          <td>${player.appearances}</td>
-          <td>${avgPoints}</td>
-          <td>${pricesStr}</td>
-          <td>${ppc}</td>
-          <td><canvas id="chart-${i}"></canvas></td>
-        `;
-        tbody.appendChild(row);
-
-        new Chart(document.getElementById(`chart-${i}`), {
-          type: 'bar',
-          data: {
-            labels: turnierNamen,
-            datasets: [{
-              label: "Punkte",
-              data: player.pointsHistory,
-              backgroundColor: "#007bff"
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
+            allPlayers[id].totalPoints += points;
+            allPlayers[id].totalPrice += price;
+            allPlayers[id].appearances += 1;
+            allPlayers[id].prices.push(price);
+            allPlayers[id].pointsHistory[index] = points;
           }
         });
-      });
-    }
-
-    function sortTable(colIndex) {
-      const table = document.getElementById("playersTable");
-      const rows = Array.from(table.rows).slice(1);
-      const asc = table.getAttribute("data-sort") !== "asc";
-      table.setAttribute("data-sort", asc ? "asc" : "desc");
-
-      rows.sort((a, b) => {
-        const valA = a.cells[colIndex].innerText.replace(',', '.');
-        const valB = b.cells[colIndex].innerText.replace(',', '.');
-        const numA = parseFloat(valA);
-        const numB = parseFloat(valB);
-        if (!isNaN(numA) && !isNaN(numB)) {
-          return asc ? numA - numB : numB - numA;
-        }
-        return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-      });
-
-      const tbody = table.tBodies[0];
-      rows.forEach(row => tbody.appendChild(row));
-    }
-
-    // Spieler-Vergleich
-    document.getElementById("compareA").addEventListener("input", updateComparison);
-    document.getElementById("compareB").addEventListener("input", updateComparison);
-
-    function updateComparison() {
-      const nameA = document.getElementById("compareA").value.toLowerCase();
-      const nameB = document.getElementById("compareB").value.toLowerCase();
-      const pA = Object.values(allPlayers).find(p => p.name.toLowerCase().includes(nameA));
-      const pB = Object.values(allPlayers).find(p => p.name.toLowerCase().includes(nameB));
-
-      const table = document.getElementById("compareTable");
-      const section = document.getElementById("compareSection");
-
-      if (pA && pB) {
-        section.style.display = "block";
-        table.innerHTML = `
-          <tr><td>Bild</td><td><img src="${pA.image}" width="50"/></td><td><img src="${pB.image}" width="50"/></td></tr>
-          <tr><td>Name</td><td>${pA.name}</td><td>${pB.name}</td></tr>
-          <tr><td>Position</td><td>${pA.position}</td><td>${pB.position}</td></tr>
-          <tr><td>Gesamtpunkte</td><td>${pA.totalPoints.toFixed(1)}</td><td>${pB.totalPoints.toFixed(1)}</td></tr>
-          <tr><td>Turniere</td><td>${pA.appearances}</td><td>${pB.appearances}</td></tr>
-          <tr><td>Punkte / Turnier</td><td>${(pA.totalPoints / pA.appearances).toFixed(1)}</td><td>${(pB.totalPoints / pB.appearances).toFixed(1)}</td></tr>
-          <tr><td>Gesamtpreis</td><td>${pA.totalPrice}</td><td>${pB.totalPrice}</td></tr>
-          <tr><td>Punkte / Coin</td><td>${(pA.totalPoints / pA.totalPrice).toFixed(2)}</td><td>${(pB.totalPoints / pB.totalPrice).toFixed(2)}</td></tr>
-        `;
-if (compareChartAInstance) compareChartAInstance.destroy();
-if (compareChartBInstance) compareChartBInstance.destroy();
-
-compareChartAInstance = new Chart(document.getElementById("compareChartA"), {
-  type: 'bar',
-  data: {
-    labels: turnierNamen,
-    datasets: [{
-      label: "Punkte",
-      data: pA.pointsHistory,
-      backgroundColor: "#28a745"
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
-  }
-});
-
-compareChartBInstance = new Chart(document.getElementById("compareChartB"), {
-  type: 'bar',
-  data: {
-    labels: turnierNamen,
-    datasets: [{
-      label: "Punkte",
-      data: pB.pointsHistory,
-      backgroundColor: "#dc3545"
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true } }
-  }
-});
-      } else {
-        section.style.display = "none";
       }
-    }
 
-    // Livesuche
-    document.getElementById("searchInput").addEventListener("input", e => renderTable(e.target.value));
+      function renderTable(filter = "") {
+        const genderFilter = document.getElementById("filterGender").value;
+        const positionFilter = document.getElementById("filterPosition").value;
 
-    extractAllPlayers();
-    renderTable();
-  </script>
+        const tbody = document.getElementById("playerRows");
+        tbody.innerHTML = "";
+
+        const filtered = Object.values(allPlayers).filter(p => {
+          const nameMatch = p.name.toLowerCase().includes(filter.toLowerCase());
+          const genderMatch = !genderFilter || p.gender === genderFilter;
+          const positionMatch = !positionFilter || p.position === positionFilter;
+          return nameMatch && genderMatch && positionMatch;
+        });
+
+        document.getElementById("totalPlayers").textContent = filtered.length;
+
+        filtered.forEach((player, i) => {
+          const avgPoints = (player.totalPoints / player.appearances).toFixed(1);
+          const ppc = (player.totalPrice > 0 ? (player.totalPoints / player.totalPrice).toFixed(2) : "0.00");
+          const pricesStr = player.prices.join(", ");
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><img src="${player.image}" alt="" /> ${player.name}</td>
+            <td>${player.position}</td>
+            <td>${player.totalPoints.toFixed(1)}</td>
+            <td>${player.appearances}</td>
+            <td>${avgPoints}</td>
+            <td>${pricesStr}</td>
+            <td>${ppc}</td>
+            <td><canvas id="chart-${i}" style="height:180px;"></canvas></td>
+          `;
+          tbody.appendChild(row);
+
+          new Chart(document.getElementById(`chart-${i}`), {
+            type: 'bar',
+            data: {
+              labels: turnierNamen,
+              datasets: [{
+                label: "Punkte",
+                data: player.pointsHistory,
+                backgroundColor: "#007bff"
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true },
+                x: {
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 45,
+                    autoSkip: false
+                  }
+                }
+              }
+            }
+          });
+        });
+      }
+
+      let currentSort = { index: null, asc: true };
+
+      function sortTable(colIndex, thElement) {
+        const table = document.getElementById("playersTable");
+        const rows = Array.from(table.rows).slice(1);
+        const asc = currentSort.index === colIndex ? !currentSort.asc : true;
+        currentSort = { index: colIndex, asc };
+
+        rows.sort((a, b) => {
+          const valA = a.cells[colIndex].innerText.replace(',', '.');
+          const valB = b.cells[colIndex].innerText.replace(',', '.');
+          const numA = parseFloat(valA);
+          const numB = parseFloat(valB);
+          if (!isNaN(numA) && !isNaN(numB)) {
+            return asc ? numA - numB : numB - numA;
+          }
+          return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        });
+
+        document.querySelectorAll("th .sort-icon").forEach(icon => {
+          icon.textContent = "⇅";
+        });
+
+        thElement.querySelector(".sort-icon").textContent = asc ? "▲" : "▼";
+
+        const tbody = table.tBodies[0];
+        rows.forEach(row => tbody.appendChild(row));
+      }
+
+      document.getElementById("compareA").addEventListener("input", updateComparison);
+      document.getElementById("compareB").addEventListener("input", updateComparison);
+
+      function updateComparison() {
+        const nameA = document.getElementById("compareA").value.toLowerCase();
+        const nameB = document.getElementById("compareB").value.toLowerCase();
+        const pA = Object.values(allPlayers).find(p => p.name.toLowerCase().includes(nameA));
+        const pB = Object.values(allPlayers).find(p => p.name.toLowerCase().includes(nameB));
+
+        const section = document.getElementById("compareSection");
+        const cardA = document.getElementById("playerCardA");
+        const cardB = document.getElementById("playerCardB");
+
+        if (pA && pB) {
+          section.style.display = "block";
+
+          cardA.innerHTML = `
+            <img src="${pA.image}" width="50" />
+            <h3>${pA.name}</h3>
+            <table>
+              <tr><td>Position</td><td>${pA.position}</td></tr>
+              <tr><td>Gesamtpunkte</td><td>${pA.totalPoints.toFixed(1)}</td></tr>
+              <tr><td>Turniere</td><td>${pA.appearances}</td></tr>
+              <tr><td>Punkte / Turnier</td><td>${(pA.totalPoints / pA.appearances).toFixed(1)}</td></tr>
+              <tr><td>Preishistorie</td><td>${pA.prices.join(", ")}</td></tr>
+              <tr><td>Punkte / Coin</td><td>${(pA.totalPoints / pA.totalPrice).toFixed(2)}</td></tr>
+            </table>
+            <canvas id="compareChartA"></canvas>
+          `;
+
+          cardB.innerHTML = `
+            <img src="${pB.image}" width="50" />
+            <h3>${pB.name}</h3>
+            <table>
+              <tr><td>Position</td><td>${pB.position}</td></tr>
+              <tr><td>Gesamtpunkte</td><td>${pB.totalPoints.toFixed(1)}</td></tr>
+              <tr><td>Turniere</td><td>${pB.appearances}</td></tr>
+              <tr><td>Punkte / Turnier</td><td>${(pB.totalPoints / pB.appearances).toFixed(1)}</td></tr>
+              <tr><td>Preishistorie</td><td>${pB.prices.join(", ")}</td></tr>
+              <tr><td>Punkte / Coin</td><td>${(pB.totalPoints / pB.totalPrice).toFixed(2)}</td></tr>
+            </table>
+            <canvas id="compareChartB"></canvas>
+          `;
+
+          if (compareChartAInstance) compareChartAInstance.destroy();
+          if (compareChartBInstance) compareChartBInstance.destroy();
+
+          compareChartAInstance = new Chart(document.getElementById("compareChartA"), {
+            type: 'bar',
+            data: {
+              labels: turnierNamen,
+              datasets: [{
+                label: "Punkte",
+                data: pA.pointsHistory,
+                backgroundColor: "#28a745"
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true },
+                x: {
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 45,
+                    autoSkip: false
+                  }
+                }
+              }
+            }
+          });
+
+          compareChartBInstance = new Chart(document.getElementById("compareChartB"), {
+            type: 'bar',
+            data: {
+              labels: turnierNamen,
+              datasets: [{
+                label: "Punkte",
+                data: pB.pointsHistory,
+                backgroundColor: "#dc3545"
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true },
+                x: {
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 45,
+                    autoSkip: false
+                  }
+                }
+              }
+            }
+          });
+
+        } else {
+          section.style.display = "none";
+          cardA.innerHTML = "";
+          cardB.innerHTML = "";
+          if (compareChartAInstance) {
+            compareChartAInstance.destroy();
+            compareChartAInstance = null;
+          }
+          if (compareChartBInstance) {
+            compareChartBInstance.destroy();
+            compareChartBInstance = null;
+          }
+        }
+      }
+
+      function setupAutocomplete(inputId, listId) {
+        const input = document.getElementById(inputId);
+        const list = document.getElementById(listId);
+
+        input.addEventListener("input", () => {
+          const value = input.value.toLowerCase();
+          list.innerHTML = "";
+          if (!value) {
+            list.style.display = "none";
+            return;
+          }
+
+          const suggestions = Object.values(allPlayers)
+            .filter(p => p.name.toLowerCase().includes(value))
+            .slice(0, 6);
+
+          suggestions.forEach(p => {
+            const li = document.createElement("li");
+            li.textContent = p.name;
+            li.addEventListener("click", () => {
+              input.value = p.name;
+              list.style.display = "none";
+              updateComparison();
+            });
+            list.appendChild(li);
+          });
+
+          list.style.display = suggestions.length ? "block" : "none";
+        });
+
+        document.addEventListener("click", e => {
+          if (!list.contains(e.target) && e.target !== input) {
+            list.style.display = "none";
+          }
+        });
+      }
+
+      setupAutocomplete("compareA", "suggestionsA");
+      setupAutocomplete("compareB", "suggestionsB");
+
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        renderTable(e.target.value);
+      });
+
+      function setupOverviewAutocomplete() {
+        const input = document.getElementById("searchInput");
+        const list = document.getElementById("suggestionsOverview");
+
+        input.addEventListener("input", () => {
+          const value = input.value.toLowerCase();
+          list.innerHTML = "";
+
+          if (!value) {
+            list.style.display = "none";
+            renderTable("");
+            return;
+          }
+
+          const suggestions = Object.values(allPlayers)
+            .filter(p => p.name.toLowerCase().includes(value))
+            .slice(0, 8);
+
+          suggestions.forEach(p => {
+            const li = document.createElement("li");
+            li.textContent = p.name;
+            li.addEventListener("click", () => {
+              input.value = p.name;
+              list.style.display = "none";
+              renderTable(p.name);
+            });
+            list.appendChild(li);
+          });
+
+          list.style.display = suggestions.length ? "block" : "none";
+        });
+
+        document.addEventListener("click", e => {
+          if (!list.contains(e.target) && e.target !== input) {
+            list.style.display = "none";
+          }
+        });
+      }
+
+      setupOverviewAutocomplete();
+
+      document.getElementById("resetFilters").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("filterGender").value = "";
+        document.getElementById("filterPosition").value = "";
+        renderTable("");
+      });
+
+
+      document.getElementById("filterGender").addEventListener("change", () => {
+        renderTable(document.getElementById("searchInput").value);
+      });
+      document.getElementById("filterPosition").addEventListener("change", () => {
+        renderTable(document.getElementById("searchInput").value);
+      });
+    
+      extractAllPlayers();
+      renderTable();
+    </script>
 </body>
+
 </html>
